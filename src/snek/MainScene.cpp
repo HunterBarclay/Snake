@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "engine/core/Input.h"
+#include "engine/Debug.h"
 
 MainScene::MainScene() : Scene("MainScene"), _player(3, 5, 5) { }
 
@@ -10,21 +11,39 @@ MainScene::~MainScene() { }
 
 void MainScene::Tick() {
 
+	// std::cout << "Space action: " << Input::GetKeyState(GLFW_KEY_SPACE) << std::endl;
+	static int SPACE;
+	SPACE = Input::GetKeyState(GLFW_KEY_SPACE);
+
+	if (SPACE == 1) {
+		_player.Paused = !_player.Paused;
+		LOG("Paused: " << _player.Paused);
+	}
+
+	if (_player.Paused)
+		return;
+
 	auto dir = _player.GetDirection();
 	// Input stuff
-	if (Input::GetKeyState(GLFW_KEY_W) == GLFW_PRESS)
+	static int W, A, S, D;
+	W = Input::GetKeyState(GLFW_KEY_W);
+	S = Input::GetKeyState(GLFW_KEY_S);
+	D = Input::GetKeyState(GLFW_KEY_D);
+	A = Input::GetKeyState(GLFW_KEY_A);
+
+	if ((W == 1 || W == 2) && dir->Y != -1.0)
 		(*dir) = Vector2(0.0, 1.0);
-	if (Input::GetKeyState(GLFW_KEY_S) == GLFW_PRESS)
+	if ((S == 1 || S == 2) && dir->Y != 1.0)
 		(*dir) = Vector2(0.0, -1.0);
-	if (Input::GetKeyState(GLFW_KEY_D) == GLFW_PRESS)
+	if ((D == 1 || D == 2) && dir->X != -1.0)
 		(*dir) = Vector2(1.0, 0.0);
-	if (Input::GetKeyState(GLFW_KEY_A) == GLFW_PRESS)
+	if ((A == 1 || A == 2) && dir->X != 1.0)
 		(*dir) = Vector2(-1.0, 0.0);
 
 	static long lastTick = Utility::GetMilliseconds();
 	if (Utility::GetMilliseconds() - lastTick > _player.speed) {
 
-		std::cout << "Update Tick: " << (Utility::GetMilliseconds() - lastTick) << "ms" << std::endl;
+		// std::cout << "Update Tick: " << (Utility::GetMilliseconds() - lastTick) << "ms" << std::endl;
 
 		lastTick = Utility::GetMilliseconds();
 
@@ -34,8 +53,8 @@ void MainScene::Tick() {
 		Vector2 projected = body->at(0) + *dir;
 		switch (_player.GetColBuf(projected)) {
 		case 1:
-			//die
-			break;
+			Died();
+			return;
 		case 2:
 			eaten = true;
 			break;
@@ -82,4 +101,9 @@ void MainScene::Render() {
 	}
 	Engine::GetInstance()->GetWindow()->SetColor(1.0f, 0.0f, 1.0f);
 	DrawBox(*_player.GetFruit());
+}
+
+void MainScene::Died() {
+	std::cout << "You Died!\nScore: " << _player.GetBody()->size() << std::endl;
+	_player.Reset(3, 5, 5);
 }

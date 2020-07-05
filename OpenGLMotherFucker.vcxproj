@@ -177,6 +177,7 @@
     <ClInclude Include="src\engine\core\Engine.h" />
     <ClInclude Include="src\engine\core\Input.h" />
     <ClInclude Include="src\engine\core\Window.h" />
+    <ClInclude Include="src\engine\Debug.h" />
     <ClInclude Include="src\engine\scene\Scene.h" />
     <ClInclude Include="src\snek\MainScene.h" />
     <ClInclude Include="src\snek\Snake.h" />

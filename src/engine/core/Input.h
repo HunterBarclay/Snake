@@ -1,13 +1,31 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <iostream>
+
+#include "engine/Debug.h"
+
+/*
+None = 0
+Pressed = 1
+Held = 2
+Released = 3
+*/
 
 class Input {
 public:
 	static void ProcessInput(GLFWwindow* window, int key, int scancode, int action, int mods) {
-		static int* keyStates = new int[256];
-		keyStates[key] = action;
-		Instance()->KeyStates = keyStates;
+		// LOG("Key: " << key << std::endl << "Action: " << action);
+		static int* keyStates = Instance()->KeyStates;
+		if (action > 0) {
+			if (keyStates[key] == 0)
+				keyStates[key] = 1;
+			else if (keyStates[key] == 1)
+				keyStates[key] = 2;
+		}
+		else {
+			keyStates[key] = 3;
+		}
 	}
 
 	static int GetKeyState(int key) {
@@ -15,12 +33,16 @@ public:
 			throw 20;
 		if (Instance()->KeyStates == nullptr)
 			return -1;
-		return Instance()->KeyStates[key];
+
+		static int keyState;
+		keyState = Instance()->KeyStates[key];
+		Instance()->KeyStates[key] = 0;
+		return keyState;
 	}
 
-	int* KeyStates = nullptr;
+	int* KeyStates;
 private:
-	Input() { }
+	Input() { KeyStates = new int[256]; }
 	~Input() { }
 
 	static Input* Instance() {

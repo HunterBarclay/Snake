@@ -43,6 +43,8 @@ public:
 	std::vector<Vector2>* GetBody() { return &_body; }
 	Vector2* GetDirection() { return &_direction; }
 	Vector2* GetFruit() { return &_fruitPos; }
+
+	bool Paused = true;
 private:
 	// 1 -> player / border
 	// 2 -> food

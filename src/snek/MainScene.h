@@ -11,6 +11,8 @@ public:
 
 	void Tick();
 	void Render();
+
+	void Died();
 private:
 	Snake _player;
 };

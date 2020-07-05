@@ -24,7 +24,7 @@ void Engine::MainLoop() {
 		_currentScene->Tick();
 		if (Utility::GetMilliseconds() - lastRender > (1000 / 60)) {
 
-			std::cout << "Render Tick: " << (Utility::GetMilliseconds() - lastRender) << "ms" << std::endl;
+			// std::cout << "Render Tick: " << (Utility::GetMilliseconds() - lastRender) << "ms" << std::endl;
 
 			lastRender = Utility::GetMilliseconds();
 
