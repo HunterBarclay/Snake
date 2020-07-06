@@ -10,7 +10,13 @@ Snake::Snake(int length, int startX, int startY) : Entity("Snake"),
 Snake::~Snake() { }
 
 void Snake::Tick() {
-	// LOG("Space action: " << Input::GetKeyState(GLFW_KEY_SPACE));
+
+	if (GetLength() >= SCREEN_SIZE_SQ) {
+		if (Input::GetKeyState(GLFW_KEY_ESCAPE) == 1)
+			Reset();
+		return;
+	}
+
 	static int SPACE;
 	SPACE = Input::GetKeyState(GLFW_KEY_SPACE);
 
@@ -41,8 +47,9 @@ void Snake::Tick() {
 
 	static long lastTick = Utility::GetMilliseconds();
 	if (Utility::GetMilliseconds() - lastTick > speed) {
-		_direction = newDir;
-		LOG("Update Tick: " << (Utility::GetMilliseconds() - lastTick) << "ms");
+		if (!Vector2::Equals(newDir + _direction, Vector2::ZERO))
+			_direction = newDir;
+		// LOG("Update Tick: " << (Utility::GetMilliseconds() - lastTick) << "ms");
 		lastTick = Utility::GetMilliseconds();
 
 		Vector2 projected = _body.at(0) + _direction;
@@ -60,6 +67,10 @@ void Snake::Tick() {
 		case 2:
 			_body.insert(_body.begin(), projected);
 			SetColBuf(projected, 1);
+			if (GetLength() >= SCREEN_SIZE_SQ) {
+				LOG("You Won!!! Escape to restart");
+				return; // Ya won
+			}
 			NewFruit();
 			break;
 		default:
@@ -67,17 +78,16 @@ void Snake::Tick() {
 			break;
 		}
 
-		// LOG("Head => x:" << _body.at(0).X << ", y:" << _body.at(0).Y);
+		LOG("Head => x:" << _body.at(0).X << ", y:" << _body.at(0).Y);
 	}
 }
 
 void DrawBox(Vector2 pos, Window* window) {
-	static double a = 2.0 / double(SCREEN_SIZE - 1);
+	static double a = 2.0 / double(SCREEN_SIZE);
 	static double offset = a / 2;
 	static double x, y;
-	x = (((pos.X + SCREEN_SIZE_HALF) * a) + offset) - 1.0;
-	y = (((pos.Y + SCREEN_SIZE_HALF) * a) - offset) - 1.0;
-	// std::cout << "X:" << x << std::endl << "Y:" << y << std::endl;
+	x = (((pos.X + SCREEN_SIZE_HALF) + 0.5) * a) - 1.0;
+	y = (((pos.Y + SCREEN_SIZE_HALF) + 0.5) * a) - 1.0;
 	window->DrawSquare(Point((GLfloat)x, (GLfloat)y), a);
 }
 
@@ -87,7 +97,7 @@ void Snake::Render(Window* window) {
 		DrawBox(_body.at(i), window);
 	}
 	window->SetColor(1.0f, 0.0f, 1.0f);
-	DrawBox(_fruitPos, window);
+	if (GetLength() < SCREEN_SIZE_SQ) DrawBox(_fruitPos, window);
 }
 
 void Snake::Died() {
@@ -99,17 +109,14 @@ void Snake::Reset() {
 	if (_collisionBuffer == nullptr)
 		_collisionBuffer = new int[SCREEN_SIZE_SQ];
 	for (int i = 0; i < SCREEN_SIZE_SQ; i++)
-		_collisionBuffer[i] = 0;
+		_collisionBuffer[i] = int(0);
 
-	_length = _defaultLength;
 	_direction = Vector2(1.0, 0.0);
 	_body.clear();
-	for (int i = 0; i < _length; i++) {
+	for (int i = 0; i < _defaultLength; i++) {
 		_body.push_back(Vector2(_defaultX, _defaultY) - (_direction * i));
 	}
-	static bool first = true;
-	NewFruit(first);
-	if (first) first = false;
+	NewFruit();
 	// Setup col buf
 	Paused = true;
 }

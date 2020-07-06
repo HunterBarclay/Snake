@@ -8,7 +8,7 @@
 class Engine {
 public:
 	static Engine* GetInstance() {
-		static Engine _instance = Engine(500, 500, "Test");
+		static Engine _instance = Engine(800, 800, "Shitty Snake v1.0.0");
 		return &_instance;
 	}
 

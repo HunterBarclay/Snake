@@ -18,48 +18,69 @@ public:
 	void Died();
 	void Reset();
 
-	const double speed = 50;
+	const double speed = 500; // 50
 
 	void SetColBuf(Vector2 pos, int v) {
 		pos.X += SCREEN_SIZE_HALF;
 		pos.Y += SCREEN_SIZE_HALF;
 
-		// Bounds Detection
 		if (pos.X < 0 || pos.X >= SCREEN_SIZE)
 			return;
 		if (pos.Y < 0 || pos.Y >= SCREEN_SIZE)
 			return;
 
-		_collisionBuffer[int((pos.Y * SCREEN_SIZE) + pos.X)] = v;
+		SetColBuf(int((pos.Y * SCREEN_SIZE) + pos.X), v);
+	}
+
+	void SetColBuf(int index, int v) {
+		if (index < 0 || index >= SCREEN_SIZE_SQ) {
+			LOG("K bud, watch your fuckin bounds");
+			return;
+		}
+
+		_collisionBuffer[index] = v;
 	}
 
 	int GetColBuf(Vector2 pos) {
 		pos.X += SCREEN_SIZE_HALF;
 		pos.Y += SCREEN_SIZE_HALF;
 
-		// Bounds detection
 		if (pos.X < 0 || pos.X >= SCREEN_SIZE)
 			return 1;
 		if (pos.Y < 0 || pos.Y >= SCREEN_SIZE)
 			return 1;
 
-		int index = int((pos.Y * SCREEN_SIZE) + pos.X);
-		int a = _collisionBuffer[index];
+		return GetColBuf(int((pos.Y * SCREEN_SIZE) + pos.X));
+	}
 
-		if (a != 0 && a != 1 && a != 2) {
-			LOG("Index => " << index);
+	int GetColBuf(int index) {
+		if (index < 0 || index >= SCREEN_SIZE_SQ) {
+			LOG("Checking out of view"); return 1; // They prob gon die
 		}
-
-		return a;
+		LOG("Index => " << index);
+		return _collisionBuffer[index];
 	}
 
 	// TODO: Randomize to a location that doesn't have the body
-	void NewFruit(bool first = false) {
-		if (!first) SetColBuf(_fruitPos, 0);
-		_fruitPos = Vector2((rand() % (SCREEN_SIZE - 1)) - SCREEN_SIZE_HALF, 
-			(rand() % (SCREEN_SIZE - 1)) - SCREEN_SIZE_HALF);
-		SetColBuf(_fruitPos, 2);
+	void NewFruit() {
+		if (GetColBuf(_fruitPos) == 2) SetColBuf(_fruitPos, 0);
+		static int newFruitIndex;
+		newFruitIndex = Utility::Rand() % SCREEN_SIZE_SQ;
+		LOG(SCREEN_SIZE_SQ);
+		while (GetColBuf(newFruitIndex) == 1)
+			newFruitIndex = (newFruitIndex + 1) % SCREEN_SIZE_SQ;
+		SetColBuf(newFruitIndex, 2);
+
+		LOG("Fruit Index => " << newFruitIndex);
+
+		// Get pos from index
+		_fruitPos.X = (newFruitIndex % SCREEN_SIZE) - 25;
+		_fruitPos.Y = ((newFruitIndex - (newFruitIndex % SCREEN_SIZE)) / SCREEN_SIZE) - 25;
+
+		LOG(_fruitPos.X << ", " << _fruitPos.Y);
 	}
+
+	int GetLength() { return _body.size(); }
 
 	std::vector<Vector2>* GetBody() { return &_body; }
 	Vector2* GetDirection() { return &_direction; }
@@ -71,7 +92,6 @@ private:
 	// 2 -> food
 	// 0 -> nothing
 	int* _collisionBuffer;
-	int _length;
 	std::vector<Vector2> _body;
 	Vector2 _direction;
 	Vector2 _fruitPos;

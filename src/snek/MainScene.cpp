@@ -5,7 +5,7 @@
 #include "engine/core/Input.h"
 #include "engine/Debug.h"
 
-#define SNAKE_DEFAULT_LENGTH 3
+#define SNAKE_DEFAULT_LENGTH 2 // If you use a length of 1, collision processing doesn't delete tail
 #define SNAKE_DEFAULT_X 5
 #define SNAKE_DEFAULT_Y 5
 
