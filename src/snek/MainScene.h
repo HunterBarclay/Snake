@@ -2,7 +2,7 @@
 
 #include "Snake.h"
 #include "../engine/core/Engine.h"
-#include "../engine/scene/Scene.h"
+#include "../engine/core/Scene.h"
 
 class MainScene: public Scene {
 public:
@@ -11,8 +11,6 @@ public:
 
 	void Tick();
 	void Render();
-
-	void Died();
 private:
 	Snake _player;
 };
