@@ -1,28 +1,111 @@
 #include "Snake.h"
 #include "engine/Debug.h"
+#include "engine/core/Input.h"
 
-Snake::Snake(int length, int startX, int startY) {
-	Reset(length, startX, startY);
+Snake::Snake(int length, int startX, int startY) : Entity("Snake"),
+		_defaultLength(length), _defaultX(startX), _defaultY(startY) {
+	Reset();
 }
 
-Snake::~Snake() {
+Snake::~Snake() { }
 
+void Snake::Tick() {
+	// LOG("Space action: " << Input::GetKeyState(GLFW_KEY_SPACE));
+	static int SPACE;
+	SPACE = Input::GetKeyState(GLFW_KEY_SPACE);
+
+	if (SPACE == 1) {
+		Paused = !Paused;
+		LOG("Paused: " << Paused);
+	}
+
+	if (Paused)
+		return;
+
+	static Vector2 newDir = _direction;
+	// Input stuff
+	static int W, A, S, D;
+	W = Input::GetKeyState(GLFW_KEY_W);
+	S = Input::GetKeyState(GLFW_KEY_S);
+	D = Input::GetKeyState(GLFW_KEY_D);
+	A = Input::GetKeyState(GLFW_KEY_A);
+
+	if ((W == 1 || W == 2) && _direction.Y != -1.0)
+		newDir = Vector2(0.0, 1.0);
+	if ((S == 1 || S == 2) && _direction.Y != 1.0)
+		newDir = Vector2(0.0, -1.0);
+	if ((D == 1 || D == 2) && _direction.X != -1.0)
+		newDir = Vector2(1.0, 0.0);
+	if ((A == 1 || A == 2) && _direction.X != 1.0)
+		newDir = Vector2(-1.0, 0.0);
+
+	static long lastTick = Utility::GetMilliseconds();
+	if (Utility::GetMilliseconds() - lastTick > speed) {
+		_direction = newDir;
+		LOG("Update Tick: " << (Utility::GetMilliseconds() - lastTick) << "ms");
+		lastTick = Utility::GetMilliseconds();
+
+		Vector2 projected = _body.at(0) + _direction;
+		int colId = GetColBuf(projected);
+		switch (colId) {
+		case 0:
+			_body.pop_back();
+			_body.insert(_body.begin(), projected);
+			SetColBuf(_body.at(_body.size() - 1), 0);
+			SetColBuf(projected, 1);
+			break;
+		case 1:
+			Died();
+			return;
+		case 2:
+			_body.insert(_body.begin(), projected);
+			SetColBuf(projected, 1);
+			NewFruit();
+			break;
+		default:
+			LOG("No sure how, but something went fucky wucky: " << colId);
+			break;
+		}
+
+		// LOG("Head => x:" << _body.at(0).X << ", y:" << _body.at(0).Y);
+	}
 }
 
-void Snake::Reset(int length, int startX, int startY) {
-	if (_collisionBuffer != nullptr) {
-		// delete _collisionBuffer;
-		for (int i = 0; i < 50 * 50; i++)
-			_collisionBuffer[i] = 0;
+void DrawBox(Vector2 pos, Window* window) {
+	static double a = 2.0 / double(SCREEN_SIZE - 1);
+	static double offset = a / 2;
+	static double x, y;
+	x = (((pos.X + SCREEN_SIZE_HALF) * a) + offset) - 1.0;
+	y = (((pos.Y + SCREEN_SIZE_HALF) * a) - offset) - 1.0;
+	// std::cout << "X:" << x << std::endl << "Y:" << y << std::endl;
+	window->DrawSquare(Point((GLfloat)x, (GLfloat)y), a);
+}
+
+void Snake::Render(Window* window) {
+	window->SetColor(1.0f, 1.0f, 1.0f);
+	for (int i = 0; i < _body.size(); i++) {
+		DrawBox(_body.at(i), window);
 	}
-	else {
-		_collisionBuffer = new int[50 * 50];
-	}
-	_length = length;
+	window->SetColor(1.0f, 0.0f, 1.0f);
+	DrawBox(_fruitPos, window);
+}
+
+void Snake::Died() {
+	std::cout << "You Died!\nScore: " << (_body.size() - 3) << std::endl;
+	Reset();
+}
+
+void Snake::Reset() {
+	if (_collisionBuffer == nullptr)
+		_collisionBuffer = new int[SCREEN_SIZE_SQ];
+	for (int i = 0; i < SCREEN_SIZE_SQ; i++)
+		_collisionBuffer[i] = 0;
+
+	_length = _defaultLength;
 	_direction = Vector2(1.0, 0.0);
 	_body.clear();
-	for (int i = 0; i < length; i++) {
-		_body.push_back(Vector2(startX, startY) - (_direction * i));
+	for (int i = 0; i < _length; i++) {
+		_body.push_back(Vector2(_defaultX, _defaultY) - (_direction * i));
 	}
 	static bool first = true;
 	NewFruit(first);

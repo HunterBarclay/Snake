@@ -3,7 +3,7 @@
 #include <thread>
 
 #include "Window.h"
-#include "engine/scene/Scene.h"
+#include "engine/core/Scene.h"
 
 class Engine {
 public:

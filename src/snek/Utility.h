@@ -2,9 +2,14 @@
 
 #include <iostream>
 #include <ctime>
+#include <cmath>
 #include <chrono>
 
 using namespace std::chrono;
+
+#define SCREEN_SIZE 50
+#define SCREEN_SIZE_SQ std::pow(SCREEN_SIZE, 2)
+#define SCREEN_SIZE_HALF SCREEN_SIZE / 2
 
 class Utility {
 public:
