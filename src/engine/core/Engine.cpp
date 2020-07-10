@@ -15,6 +15,7 @@ Engine::Engine(int windowWidth, int windowHeight, const char* windowName) {
 
 Engine::~Engine() {
 	delete _window;
+	delete _currentScene;
 }
 
 void Engine::MainLoop() {

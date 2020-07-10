@@ -18,7 +18,7 @@ public:
 	void Died();
 	void Reset();
 
-	const double speed = 500; // 50
+	const double speed = 50; // 50
 
 	void SetColBuf(Vector2 pos, int v) {
 		pos.X += SCREEN_SIZE_HALF;

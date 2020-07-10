@@ -43,7 +43,7 @@ public:
 	int* KeyStates;
 private:
 	Input() { KeyStates = new int[256]; }
-	~Input() { }
+	~Input() { delete KeyStates; }
 
 	static Input* Instance() {
 		static Input instance;

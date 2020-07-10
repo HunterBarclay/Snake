@@ -7,7 +7,10 @@ Snake::Snake(int length, int startX, int startY) : Entity("Snake"),
 	Reset();
 }
 
-Snake::~Snake() { }
+Snake::~Snake() {
+	if (_collisionBuffer != nullptr)
+		delete _collisionBuffer;
+}
 
 void Snake::Tick() {
 
@@ -108,8 +111,11 @@ void Snake::Died() {
 void Snake::Reset() {
 	if (_collisionBuffer == nullptr)
 		_collisionBuffer = new int[SCREEN_SIZE_SQ];
+	else
+		delete _collisionBuffer;
+	
 	for (int i = 0; i < SCREEN_SIZE_SQ; i++)
-		_collisionBuffer[i] = int(0);
+		_collisionBuffer[i] = 0;
 
 	_direction = Vector2(1.0, 0.0);
 	_body.clear();
