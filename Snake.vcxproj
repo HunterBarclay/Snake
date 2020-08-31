@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{04FBE0D3-6655-4800-ACFE-BE54FA7C8C25}</ProjectGuid>
+    <ProjectGuid>{A7B39DD7-F31C-496F-B053-614F93540E5A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>OpenGLMotherFucker</RootNamespace>
+    <RootNamespace>SnakeGame</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Snake</ProjectName>
   </PropertyGroup>
